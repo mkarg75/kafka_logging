@@ -137,4 +137,8 @@ oc logs -f -n openshift-logging <fluentd_pod>
 
 If all went well, the pod should send its messages to kafka. 
 
+# TODOs
+
+* tls encrypted traffic to kafka
+* cleanup of naming conventions
 
