@@ -91,3 +91,50 @@ sh 08-grafana-datasource.sh
 
 # Logging
 
+## Deploy the logging operator
+```
+cd ../logging
+oc create -f eo-namespace.yaml
+oc create -f clo-namespace.yaml
+oc create -f eo-og.yaml
+oc create -f eo-sub.yaml
+oc get csv --all-namespaces
+
+oc create -f clo-og.yaml
+oc create -f clo-sub.yaml
+oc get csv -n openshift-logging
+oc create -f clo-instance.yaml
+```
+
+The last step creates a logging instance that does **not** start Elasticsearch.
+
+## Create a logforwarder to kafka
+
+Get the service from the amq project:
+```
+oc get service -n amq
+
+NAME                          TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                               AGE
+grafana                       ClusterIP   172.30.40.210    <none>        3000/TCP                              65m
+my-cluster-kafka-bootstrap    ClusterIP   172.30.217.243   <none>        9091/TCP,9092/TCP,9093/TCP,9404/TCP   39m
+my-cluster-kafka-brokers      ClusterIP   None             <none>        9091/TCP,9092/TCP,9093/TCP            39m
+my-cluster-zookeeper-client   ClusterIP   172.30.1.16      <none>        9404/TCP,2181/TCP                     40m
+my-cluster-zookeeper-nodes    ClusterIP   None             <none>        2181/TCP,2888/TCP,3888/TCP            40m
+prometheus                    ClusterIP   172.30.27.130    <none>        9090/TCP                              65m
+```
+
+The required service here is *my-cluster-kafka-bootstrap.amq.svc*. Make sure to change the `clusterforwarder.yaml` accordingly. 
+
+```
+oc create -f clusterforwarder.yaml
+oc get pods -A | grep fluentd
+```
+
+Now check the logs of one of the created fluentd pods
+```
+oc logs -f -n openshift-logging <fluentd_pod>
+```
+
+If all went well, the pod should send its messages to kafka. 
+
+
