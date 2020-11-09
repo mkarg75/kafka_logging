@@ -15,6 +15,4 @@ curl -X POST http://admin:admin@grafana-route-amq.apps.test736.myocp4.com/api/da
 #curl -X POST http://admin:admin@grafana-route-amq.apps.ocp4.ceph-s3.com/api/dashboards/db -d @grafana-dashboards/ceph-osds-dashboard.json --header "Content-Type: application/json"
 # deploy Ceph dashboard
 #curl -X POST http://admin:admin@grafana-route-amq.apps.ocp4.ceph-s3.com/api/dashboards/db -d @grafana-dashboards/ceph-pools-dashboard.json --header "Content-Type: application/json"
-~                                                                                                                                                                            
-~                                                                                                                                                                            
 ~                                          
