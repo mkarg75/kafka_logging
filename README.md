@@ -112,16 +112,16 @@ sh 08-grafana-datasource.sh
 ## Deploy the logging operator
 ```
 cd ../logging
-oc create -f eo-namespace.yaml
-oc create -f clo-namespace.yaml
-oc create -f eo-og.yaml
-oc create -f eo-sub.yaml
+oc create -f 01-eo-namespace.yaml
+oc create -f 02-clo-namespace.yaml
+oc create -f 03-eo-og.yaml
+oc create -f 04-eo-sub.yaml
 
-oc create -f clo-og.yaml
-oc create -f clo-sub.yaml
+oc create -f 05-clo-og.yaml
+oc create -f 06-clo-sub.yaml
 oc get csv -n openshift-logging
-oc create -f clo-instance.yaml
-oc create -f kafka-secret.yaml
+oc create -f 07-clo-instance.yaml
+oc create -f 08-kafka-secret.yaml
 ```
 
 The last step creates a logging instance that does **not** start Elasticsearch.
