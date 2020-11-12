@@ -144,7 +144,7 @@ prometheus                    ClusterIP   172.30.27.130    <none>        9090/TC
 The required service here is *my-cluster-kafka-bootstrap.amq.svc*. Make sure to change the `clusterforwarder.yaml` accordingly. 
 
 ```
-oc create -f clusterforwarder.yaml
+oc create -f 09-clusterforwarder.yaml
 oc get pods -A -o wide | grep fluentd
 ```
 Every worker and master node in the cluster should have a fluentd pod up and running at this point.
