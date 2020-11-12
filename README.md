@@ -15,8 +15,7 @@ To install AMQ Streams, download and extract the amq-streams-x.y.z-ocp-install-e
 
 
 ```
-oc whoami
-oc new-project amq
+oc create -f 01-kafka-namespace.yaml
 
 unzip amq-streams-1.2.0-ocp-install-examples.zip
 ```
