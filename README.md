@@ -106,6 +106,26 @@ oc logs -f -n openshift-logging <fluentd_pod>
 
 If all went well, the pod should send its messages to kafka. 
 
+## Setup kafka-minion as a prometheus exporter
+
+```
+oc create -f 30_minion_pod.yaml
+```
+This will bring up a kafka minion pod that needs to be made accessible through a service
+```
+oc create -f 31_minion_service.yaml
+```
+
+Once this is done, the exporter is available at port 8080. The dasboards at 
+
+https://grafana.com/dashboards/10083
+https://grafana.com/dashboards/10466
+
+can be imported and modified as needed. The exposed metrics are described at
+
+https://github.com/cloudworkz/kafka-minion
+
+
 # TODOs
 
-* bridges to kafka and consumers
+
