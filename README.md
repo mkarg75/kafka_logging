@@ -26,9 +26,10 @@ oc create -f 04-eo-sub.yaml
 
 oc create -f 05-clo-og.yaml
 oc create -f 06-clo-sub.yaml
-oc get csv -n openshift-logging
 oc create -f 07-clo-instance.yaml
 oc create -f 08-kafka-secret.yaml
+
+oc get all -n openshift-logging
 ```
 
 The last step creates a logging instance that does **not** start Elasticsearch.
@@ -46,6 +47,7 @@ oc create -f 04-kafka-cluster.yaml
 
 Wait until all the resources are available:
 ```
+oc get all -n amq
 NAME                                                       READY   STATUS    RESTARTS   AGE
 pod/amq-streams-cluster-operator-v1.5.3-5d87546f58-pdvw6   1/1     Running   0          14m
 pod/my-cluster-entity-operator-84b9bf7f9d-9nbpt            3/3     Running   0          13m
@@ -106,24 +108,51 @@ oc logs -f -n openshift-logging <fluentd_pod>
 
 If all went well, the pod should send its messages to kafka. 
 
+## Setup a consumer for the logs
+
+We're only interested in the app logs for now, so we need to set up a consumer for those:
+```
+oc process -f 20_topic_consumer.yaml | oc create -f -
+```
+
+If the other topics should also be consumed, run these command:
+
+```
+oc process -f 20_topic_consumer.yaml -p KAFKA_TOPIC=topic-logging-alert -p CONSUMER_GROUP=alert-consumer | oc create -f -
+oc process -f 20_topic_consumer.yaml -p KAFKA_TOPIC=topic-logging-infra -p CONSUMER_GROUP=infra-consumer | oc create -f -
+```
+
 ## Setup kafka-minion as a prometheus exporter
 
 ```
-oc create -f 30_minion_pod.yaml
+oc create -f 30_minion.yaml
 ```
-This will bring up a kafka minion pod that needs to be made accessible through a service
+This will bring up a kafka minion deployment that needs to be made accessible through a service
 ```
 oc create -f 31_minion_service.yaml
 ```
 
-Once this is done, the exporter is available at port 8080. The dasboards at 
+## Enable user workload monitoring in OCP
+
+kafka-minion is a prometheus exporter that we need to integrate as a datasource. For that we need to enable user monitoring first:
+
+```
+oc create -f 40_user_workload_monitoring.yaml
+oc create -f 41_service_monitor.yaml
+```
+Once this is done, the metrics should be available through Thanos. To use them in grafana, we need to set up an additional data source. For that we need the token and the route to thanos
+```
+oc sa get-token prometheus-k8s -n openshift-monitoring
+oc get route -n openshift-monitoring | thanos-querier
+```
+Now add a new datasource of the type 'Prometheus', url is https://<thanos-querier-route>/. Enable "Skip TLS Verify" and add a new header `Authorization` with the value of `Bearer <token_from_above>`
+
+Then import these 2 dashboards, pointing them to the new datasource:
 
 https://grafana.com/dashboards/10083
 https://grafana.com/dashboards/10466
 
-can be imported and modified as needed. The exposed metrics are described at
-
-https://github.com/cloudworkz/kafka-minion
+and enjoy your metrics!
 
 
 # TODOs
