@@ -157,4 +157,6 @@ and enjoy your metrics!
 
 # TODOs
 
+add persistent storage for kafka to use
+
 
