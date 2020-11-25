@@ -143,7 +143,7 @@ oc create -f 41_service_monitor.yaml
 Once this is done, the metrics should be available through Thanos. To use them in grafana, we need to set up an additional data source. For that we need the token and the route to thanos
 ```
 oc sa get-token prometheus-k8s -n openshift-monitoring
-oc get route -n openshift-monitoring | thanos-querier
+oc get route -n openshift-monitoring | grep thanos-querier | awk '{print $2}'
 ```
 Now add a new datasource of the type 'Prometheus', url is https://<thanos-querier-route>/. Enable "Skip TLS Verify" and add a new header `Authorization` with the value of `Bearer <token_from_above>`
 
